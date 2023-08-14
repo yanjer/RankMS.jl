@@ -7,15 +7,15 @@ export REO_molecular_markers_main,
        filter_expr_matrix,
        read_mtx, read_gmt, read_meta
 
-include(joinpath(@__DIR__, "..", "code", "read_file.jl"))
+include("code/read_file.jl")
 
-include(joinpath(@__DIR__, "..", "code", "process_expr.jl"))
+include("code/process_expr.jl")
 
-include(joinpath(@__DIR__, "..", "code", "fgene_to_combine_genepair.jl"))
+include("code/gene_combine_genepair.jl")
 
-include(joinpath(@__DIR__, "..", "code", "train_and_test_sample.jl"))
+include("code/train_and_test_sample.jl")
 
-include(joinpath(@__DIR__, "..", "code", "hill_climbing_method.jl"))
+include("code/hill_climbing_method.jl")
 
 
 

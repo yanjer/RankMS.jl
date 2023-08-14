@@ -128,8 +128,9 @@ function read_meta(fn::AbstractString, group::AbstractString = "group"; delim::A
 	return ([bar[ind .== i] for i in 1:length(nam)], nam)
 end
 
-function read_feature_genes(fn::AbstractString; fg_sit::Int = 1, delim::AbstractChar = '\t')
+function read_feature(fn::AbstractString; fg_sit::Int = 1, delim::AbstractChar = '\t')
 	isfile(fn) || throw("File $fn does not exist.")
 	features, header = readdlm(fn, delim, header = true)
+	fg_sit <= size(header)[1] || throw("The column of the feature gene is greater than the number of columns in the feature gene file $fn.")
 	return features[:,fg_sit]
 end

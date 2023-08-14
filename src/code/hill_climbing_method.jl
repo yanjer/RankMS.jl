@@ -2,9 +2,9 @@ export hill_climbing_method_kernel, n_top_genepair
 
 # using DataFrames
 
-include(joinpath(@__DIR__, "..", "code", "compare_genepair.jl"))
+include("compare_genepair.jl")
 
-include(joinpath(@__DIR__, "..", "code", "roc.jl"))
+include("roc.jl")
 
 
 function n_top_genepair(matr::Matrix,
