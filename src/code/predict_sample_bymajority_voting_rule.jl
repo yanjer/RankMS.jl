@@ -112,7 +112,6 @@ julia> pre_sample_classification_ct
 function predict_sample_classification(fn_expr::AbstractString = "matrix.mtx",
                                                 rn_expr::AbstractString = "features.tsv",
                                                 cn_expr::AbstractString = "barcodes.tsv",
-                                                fn_group_order::AbstractString = "group_order.tsv",
                                  fn_marker_fea::AbstractString = "marker_feas.tsv";
                                  fn_meta::AbstractString = "fn_meta.tsv",
                                  fn_meta_delim::AbstractChar = '\t',
@@ -127,37 +126,25 @@ function predict_sample_classification(fn_expr::AbstractString = "matrix.mtx",
     fn_stem, = splitext(basename(fn_expr))   #filename stem
     @time mat, fea, bar = (file_format_expr == "read_mtx") ? read_mtx(fn_expr, rn_expr, cn_expr; T, feature_col, barcode_col) : read_expr_matrix(fn_expr, rn_expr, cn_expr)
     @info "INFO: The size of expression profile was $(size(mat))."
-    @time marker_fea = read_marker_fea(fn_marker_fea; delim = fn_marker_fea_delim)  
-    group_order = read_group_order(fn_group_order)
-    group_order[group_order .== "regression"] .= "response"
-    group_order[group_order .== "unregression"] .= "nonresponse"
-    # # # 过滤表达谱
-    # # @time mat, kf, kb = filter_expr_matrix(mat, feature_threshold, cell_threshold)
-    # # @info "INFO: The filtered of expression profile size was $(size(mat))."
-    # # fea = fea[kf]
-    # # bar = bar[kb]
-    # Xnorm = Matrix(mat')
-    r, c = size(mat)
-    X_reo = mapreduce(x->(mat[(fea .== x[1]),:] .> mat[(fea .== x[2]),:]),vcat,eachrow(marker_fea))
-    reduce(vcat, [[mat[(fea .== x[1]),:] .> mat[(fea .== x[2]),:]] for x in eachrow(marker_fea)])
-    vote = sum(X_reo',dims=2)
-    m = size(X_reo)[1]/2
+    @time marker_fea = read_marker_fea(fn_marker_fea; delim = fn_marker_fea_delim)
+    # # 过滤表达谱
+    # @time mat, kf, kb = filter_expr_matrix(mat, feature_threshold, cell_threshold)
+    # @info "INFO: The filtered of expression profile size was $(size(mat))."
+    # fea = fea[kf]
+    # bar = bar[kb]
+    Xnorm = Matrix(mat')
+    r, c = size(Xnorm)
+    X_reo = mapreduce(x->(Xnorm[:,(fea .== x[1])] .> Xnorm[:,(fea .== x[2])]),hcat,eachrow(marker_fea))
+    vote = sum(X_reo,dims=2)
+    m = size(marker_fea)[1]/2
     pre_classification = .!mapreduce(x -> is_greater(x, m, 0),vcat,vote) .+ 1
     # 分类结果，第一列为样本名，第二列为分类类别
     pre_sample_classification = hcat(bar,pre_classification)
     writedlm(join([fn_stem, "majority_voting_rule_pre.tsv"], "_"), pre_sample_classification, "\t")
     if isfile(fn_meta)
         grp, nam, meta_bar = read_meta(fn_meta, fn_meta_group; delim = fn_meta_delim)
-        if nam != group_order
-            nam = reverse(nam)
-            nam == group_order || throw("The group names of the validation dataset and the training dataset need to be the same.")
-            grp = reverse(grp)
-        end
-        c == length(meta_bar) ||  throw(DimensionMismatch("The number of samples for metadata is not equal to the number of samples for the expression profile."))
+        r == length(meta_bar) ||  throw(DimensionMismatch("The number of samples for metadata is not equal to the number of samples for the expression profile."))
         pre_sample_classification_ct = ["" "True_group1" "True_group2"; "Pre_group1" length(intersect_groudtruth(pre_sample_classification,grp,1,1)) length(intersect_groudtruth(pre_sample_classification,grp,1,2)); "Pre_group2" length(intersect_groudtruth(pre_sample_classification,grp,2,1)) length(intersect_groudtruth(pre_sample_classification,grp,2,2))]
-        l_ps = (pre_sample_classification[:,2] .== 1)
-        pre_sample_classification[l_ps,2] .= nam[1]
-        pre_sample_classification[.!l_ps,2] .= nam[2]
         return pre_sample_classification, pre_sample_classification_ct
     end
     return pre_sample_classification
@@ -258,13 +245,13 @@ function predict_sample_classification(mat::Matrix,
                                        fea::Vector,
                                        bar::Vector,
                                     marker_fea::Matrix,
-                                    grp::Vector = [],
-                                    fn_stem::AbstractString = "psc")
-    # Xnorm = Matrix(mat')
-    r, c = size(mat)
-    X_reo = mapreduce(x->(mat[(fea .== x[1]),:] .> mat[(fea .== x[2]),:]),vcat,eachrow(marker_fea))
-    vote = sum(X_reo',dims=2)
-    m = size(X_reo)[1]/2
+                                    fn_stem::AbstractString = "psc",
+                                    grp::Vector = [])
+    Xnorm = Matrix(mat')
+    r, c = size(Xnorm)
+    X_reo = mapreduce(x->(Xnorm[:,(fea .== x[1])] .> Xnorm[:,(fea .== x[2])]),hcat,eachrow(marker_fea))
+    vote = sum(X_reo,dims=2)
+    m = size(marker_fea)[1]/2
     pre_classification = .!mapreduce(x -> is_greater(x, m, 0),vcat,vote) .+ 1
     # 分类结果，第一列为样本名，第二列为分类类别
     pre_sample_classification = hcat(bar,pre_classification)
@@ -400,48 +387,3 @@ end
 #     return pre_sample_classification
 #     # return hcat(nam[y_pred],nam[y_pred])
 # end
-
-
-
-
-# function predict_sample_classification(fn_expr::AbstractString = "matrix.mtx",
-#                                                 rn_expr::AbstractString = "features.tsv",
-#                                                 cn_expr::AbstractString = "barcodes.tsv",
-#                                                 fn_group_order::AbstractString = "group_order.tsv",
-#                                  fn_marker_fea::AbstractString = "marker_feas.tsv",
-#                                  fn_meta::AbstractString = "fn_meta.tsv";
-#                                  fn_meta_delim::AbstractChar = '\t',
-#                                fn_meta_group::AbstractString = "group",
-#                                        file_format_expr::AbstractString = "read_mtx", # There are two input modes "read_mtx" and "read_expr_matrix" for the expression profile file format.
-#                                                       T::Type = Int32,
-#                                             feature_col::Int = 2,
-#                                             barcode_col::Int = 1,
-#                                             fn_marker_fea_delim::AbstractChar = '\t',
-#                                       feature_threshold::Int = 30, # Include features (genes) detected in at least this many cells
-#                                          cell_threshold::Int = 200) # Include profiles (cells) where at least this many features are detected
-#     fn_stem, = splitext(basename(fn_expr))   #filename stem
-#     @time mat, fea, bar = (file_format_expr == "read_mtx") ? read_mtx(fn_expr, rn_expr, cn_expr; T, feature_col, barcode_col) : read_expr_matrix(fn_expr, rn_expr, cn_expr)
-#     @info "INFO: The size of expression profile was $(size(mat))."
-#     @time marker_fea = read_marker_fea(fn_marker_fea; delim = fn_marker_fea_delim)
-#     group_order = read_group_order(fn_group_order)
-#     # # # 过滤表达谱
-#     # # @time mat, kf, kb = filter_expr_matrix(mat, feature_threshold, cell_threshold)
-#     # # @info "INFO: The filtered of expression profile size was $(size(mat))."
-#     # # fea = fea[kf]
-#     # # bar = bar[kb]
-#     # Xnorm = Matrix(mat')
-#     r, c = size(mat)
-#     X_reo = mapreduce(x->(mat[(fea .== x[1]),:] .> mat[(fea .== x[2]),:]),vcat,eachrow(marker_fea))
-#     reduce(vcat, [[mat[(fea .== x[1]),:] .> mat[(fea .== x[2]),:]] for x in eachrow(marker_fea)])
-#     vote = sum(X_reo',dims=2)
-#     grp, nam, meta_bar = read_meta(fn_meta, fn_meta_group; delim = fn_meta_delim)
-#     if nam != group_order
-#         nam = reverse(nam)
-#         nam == group_order || throw("The group names of the validation dataset and the training dataset need to be the same.")
-#         grp = reverse(grp)
-#     end
-#     ngrp = (bar .∈ (grp[1], ))
-#     pre_AUC = roc_kernel(vote, ngrp, decreasing  = true,auc_only = true, verbose = false)
-#     return pre_AUC
-# end
-

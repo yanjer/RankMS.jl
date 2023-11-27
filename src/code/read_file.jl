@@ -153,11 +153,7 @@ function read_feature(fn::AbstractString; fg_sit::Int = 1, delim::AbstractChar =
 	return features[:,fg_sit]
 end
 
-function read_group_order(fn::AbstractString; delim::AbstractChar = '\t')
-	isfile(fn) || throw("File $fn does not exist.")
-	group_order = readdlm(fn, delim, header = false)
-	return vec(group_order)
-end
+
 
 function read_marker_fea(fn::AbstractString = "marker_feas.tsv"; delim::AbstractChar = '\t')
 	isfile(fn) || throw("File $fn does not exist.")
