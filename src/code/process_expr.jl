@@ -47,8 +47,8 @@ function filter_expr_matrix(mat::AbstractMatrix, feature_threshold::Int=30, cell
 		nc = mapslices(nnz, mat, dims = 1) # 1xc
 		nf = mapslices(nnz, mat, dims = 2) # rx1
 	else
-		nc =count(==(0), mat, dims = 1) # 1xc
-		nf =count(==(0), mat, dims = 2) # rx1
+		nc =count(!=(0), mat, dims = 1) # 1xc
+		nf =count(!=(0), mat, dims = 2) # rx1
 	end
 	kf = reshape(nf .> feature_threshold, :)
 	kc = reshape(nc .> cell_threshold, :)
@@ -76,6 +76,15 @@ julia> generate_pseudobulk(rand(0:32, 10, 6), 3)
  62  35
  15  51
 ```
+
+```jldoctest
+generate_pseudobulk_kernel(mat::AbstractMatrix, np::Int = 10)
+```
+
+The parameters are:
+
+- `mat::AbstractMatrix`: Each column is a profile.
+- `np::Int`: Number of profiles in each pseudobulk profile. Default: 10.
 """
 function generate_pseudobulk_kernel(mat::AbstractMatrix, # Each column is a profile
 							  np::Int = 10 # Number of profiles in each pseudobulk profile
@@ -89,6 +98,7 @@ function generate_pseudobulk_kernel(mat::AbstractMatrix, # Each column is a prof
 	#TODO: `mapslices` and `sum` (with dims) cannot be combined together.
 	reduce(hcat, [sum(mat[:,i], dims = 2) for i in eachcol(ind)]), ns #,ind
 end
+
 
 function generate_pseudobulk_kernel(mat::AbstractMatrix, # Each column is a profile
 									bar::Vector,

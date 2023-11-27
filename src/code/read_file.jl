@@ -1,6 +1,8 @@
-export read_mtx, read_gmt, read_meta, read_feature_genes
-
 using DelimitedFiles, SparseArrays
+
+using JLD, HDF5
+
+export read_mtx, read_gmt, read_meta, read_feature_genes
 
 """
      read_expr_matrix(fn, rn, cn)
@@ -8,6 +10,12 @@ using DelimitedFiles, SparseArrays
 Read in an expression matrix stored in `fn` where its row names are stored in `rn` and column names are stored in `cn`.
 It returns (matrix, vector of row names, vector of column names) 
 
+`read_expr_matrix(fn::AbstractString,rn::AbstractString, cn::AbstractString)`
+
+The parameters are:
+- `fn::AbstractString`: Expression matrix file path, with rows representing genes and columns representing samples, does not require column names.
+- `rn::AbstractString`: Gene list file path. 
+- `cn::AbstractString`: Sample name list file path. 
 """
 function read_expr_matrix(fn::AbstractString,rn::AbstractString, cn::AbstractString)
 	isfile(fn) || throw("File $fn does not exist.")
@@ -108,6 +116,15 @@ julia> length.(grp)
 julia> length(nam)
 12
 ```
+
+```jldoctest
+read_meta(fn::AbstractString, group::AbstractString = "group"; delim::AbstractChar = '\t')
+```
+
+The parameters are:
+- `fn::AbstractString`: Metadata file path, the first column sample name, the second column group information. (Default = "fn_meta.txt".
+- `group::AbstractString`: Specifies the column name of the group information in metadata. (Default: "group".
+- `delim::AbstractChar`: Delimiter of the metadata file. (Default: = '\t')
 """
 function read_meta(fn::AbstractString, group::AbstractString = "group"; delim::AbstractChar = '\t')
 	isfile(fn) || throw("File $fn does not exist.")
@@ -115,7 +132,8 @@ function read_meta(fn::AbstractString, group::AbstractString = "group"; delim::A
 	r, c = size(meta)
 	c > 1 || throw("Meta file must have at least two columns and the first column should be cell barcodes (or other-type profile names).")
 	header = header[header .!= ""] # write.table in R will drop the column name for the column that stores the row names
-	length(header) == c || length(header) == c -1 || throw("Meta header does not match with the content.")
+	# length(header) == c || length(header) == c -1 || throw("Meta header does not match with the content.")
+	length(header) == c || throw("Meta header does not match with the content.")
 	gi = findfirst(==(group), header)
 	if isnothing(gi) # if `group` is not found in the meta header, assume the second column (the first non-barcode column)
 		gi = 2
@@ -125,7 +143,7 @@ function read_meta(fn::AbstractString, group::AbstractString = "group"; delim::A
 	grp = meta[:, gi]
 	nam = unique(grp)
 	ind = indexin(grp, nam)
-	return ([bar[ind .== i] for i in 1:length(nam)], nam)
+	return ([bar[ind .== i] for i in 1:length(nam)], nam, bar)
 end
 
 function read_feature(fn::AbstractString; fg_sit::Int = 1, delim::AbstractChar = '\t')
@@ -133,4 +151,23 @@ function read_feature(fn::AbstractString; fg_sit::Int = 1, delim::AbstractChar =
 	features, header = readdlm(fn, delim, header = true)
 	fg_sit <= size(header)[1] || throw("The column of the feature gene is greater than the number of columns in the feature gene file $fn.")
 	return features[:,fg_sit]
+end
+
+function read_group_order(fn::AbstractString; delim::AbstractChar = '\t')
+	isfile(fn) || throw("File $fn does not exist.")
+	group_order = readdlm(fn, delim, header = false)
+	return vec(group_order)
+end
+
+function read_marker_fea(fn::AbstractString = "marker_feas.tsv"; delim::AbstractChar = '\t')
+	isfile(fn) || throw("File $fn does not exist.")
+	marker_fea = readdlm(fn, delim, header = false)
+	size(marker_fea)[2] >= 2 || throw("There is no gene pair information in the file $fn.")
+	return marker_fea[:,1:2]
+end
+
+function load_RandomForest_classifier(fn::AbstractString = "RandomForest_classifier.jld")
+	isfile(fn) || throw("File $fn does not exist.")
+	classifier = collect(values(load(fn)))[1]
+    return classifier
 end
