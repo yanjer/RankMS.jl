@@ -160,13 +160,12 @@ function fgene_to_genepair_kernel(
         mat_genepair_01 = genepair_select(mat, [1:r...], [1:r...])
         return mat_genepair_01, fea, fea, r
     else
-        f_l = gene_select(mat, fea, ngrp, bar, fn_feature, mode_gene_select = mode_gene_select, fn_feature_gene_sit = fn_feature_gene_sit, fn_feature_delim = fn_feature_delim)
+        f_l = gene_select(nmat, fea, ngrp, bar, fn_feature, mode_gene_select = mode_gene_select, fn_feature_gene_sit = fn_feature_gene_sit, fn_feature_delim = fn_feature_delim)
         if (mode_genepair_select == "all_feature_gene_pair")
             # 将特征排列在前面
             # mat_genepair_01 = genepair_select(mat, [1:r...][f_l], vcat([1:r...][f_l],[1:r...][.!f_l]))
-            l_fea = vcat([1:r...][f_l],[1:r...][.!f_l])
-            mat_genepair_01 = genepair_select(mat, l_fea, l_fea)
-            return mat_genepair_01, fea[l_fea], fea[l_fea], sum(f_l)
+            mat_genepair_01 = genepair_select(mat, (1:r)[f_l], vcat((1:r)[f_l],(1:r)[.!f_l]))
+            return mat_genepair_01, fea[(1:r)[f_l]], fea, sum(f_l)
         else
             (mode_genepair_select == "feature_gene_pair") || throw("The mode_genepair_select parameter supports only all_gene_pair, all_feature_gene_pair, or feature_gene_pair. ")
             mat_genepair_01 = genepair_select(mat, [1:r...][f_l], [1:r...][f_l])

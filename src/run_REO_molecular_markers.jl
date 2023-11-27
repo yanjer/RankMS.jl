@@ -140,26 +140,102 @@ function run_REO_molecular_markers(nmat::AbstractMatrix, # Expression profiles m
     @time mat_first_fea_01, mat_all_fea_01, list_sample_auc = hill_climbing_method_kernel(nmat_fea_01, r, c, l_train, l_test, train_test_set, true_ngrp, t_hill_iter_num, t_train_iter_num)
     # 从2000次迭代中抽500次
     # original
-    scores, fea = sampling(mat_first_fea_01, list_sample_auc, mat_all_fea_01; sp_choice = 0)
-    f1 = fea .% r
-    f1[f1 .== 0] .= c
-    f2 = fea .÷ r
+    scores, l_fea, ss = sampling(mat_first_fea_01, list_sample_auc, mat_all_fea_01; sp_choice = 0)
+    writedlm(join([fn_stem, "osample_local.tsv"], "_"), ss, "\t")
+    f1 = l_fea .% r
+    f2 = l_fea .÷ r
+    f2[(f1 .== 0) .&& (f2 .!=0 )] .-= 1
     f2[f2 .== 0] .= 1
+    f1[f1 .== 0] .= c
     ffo = hcat(features1[f1], features2[f2])
     # weight
-    scores, fea = sampling(mat_first_fea_01, list_sample_auc, mat_all_fea_01; sp_choice = 1)
-    f1 = fea .% r
-    f1[f1 .== 0] .= c
-    f2 = fea .÷ r
+    scores, l_fea, ss = sampling(mat_first_fea_01, list_sample_auc, mat_all_fea_01; sp_choice = 1)
+    writedlm(join([fn_stem, "wsample_local.tsv"], "_"), ss, "\t")
+    f1 = l_fea .% r
+    f2 = l_fea .÷ r
+    f2[(f1 .== 0) .&& (f2 .!=0 )] .-= 1
     f2[f2 .== 0] .= 1
+    f1[f1 .== 0] .= c
     ffw = hcat(features1[f1], features2[f2])
-    return ffo, ffw
+    # 保存文件
+    mat_first_fea_01 = mat_first_fea_01[setdiff(1:end, [1:r...].^2),:]
+    mat_all_fea_01 = mat_all_fea_01[setdiff(1:end, [1:r...].^2),:]
+    writedlm(join([fn_stem, "mat_first_fea_01.tsv"], "_"), mat_first_fea_01, "\t")
+    writedlm(join([fn_stem, "mat_all_fea_01.tsv"], "_"), mat_all_fea_01, "\t")
+    writedlm(join([fn_stem, "list_sample_auc.tsv"], "_"), list_sample_auc, "\t")
+    return ffo[.!(ffo[:,1] .== ffo[:,2]),:], ffw[.!(ffw[:,1] .== ffw[:,2]),:]
     # 返回特征基因对(REO都为">"关系)。
-    # f1 = fea .% r
+    # f1 = l_fea .% r
     # f1[f1 .== 0] .= c
-    # f2 = fea .÷ r
+    # f2 = l_fea .÷ r
     # f2[f2 .== 0] .= 1
     # return hcat(features1[f1], features2[f2])
+
+
+    # # # FOLDS
+    # s_sample = readdlm("/public/yanj/jupyter_work/molecular_marker/idea_1_climbing_method/IMPRES-codes-master/MAIN_CODES/Feature_selection/Sample_training_set/FOLDS_sample.txt", '\t', header = false)
+    # [s_sample[(s_sample .== i[1])] .= i[2] for i in eachrow(Int64.(hcat(sort(unique(s_sample)),[1:108...])))]
+    # train_test_set = [Int64.(vec(i)) for i in eachcol(s_sample)]
+    # if t_train_iter_num > (r*c - min(r,c))
+    #   @info ("The threshold of the number of iterations for each sample of the mountain climbing method is $t_train_iter_num, which is greater than the total number of features $(r*c - min(r,c)), so the number of features is taken as the upper limit.")
+    #   t_train_iter_num = (r*c - min(r,c))
+    # end
+    # t_hill_iter_num=500
+    # @time mat_first_fea_01, mat_all_fea_01, list_sample_auc = hill_climbing_method_kernel(nmat_fea_01, r, c, l_train, l_test, train_test_set, true_ngrp, t_hill_iter_num, t_train_iter_num)
+    # writedlm(join([fn_stem, "s500_mat_first_fea_01.tsv"], "_"), mat_first_fea_01, "\t")
+    # writedlm(join([fn_stem, "s500_mat_all_fea_01.tsv"], "_"), mat_all_fea_01, "\t")
+    # writedlm(join([fn_stem, "s500_list_sample_auc.tsv"], "_"), list_sample_auc, "\t")
+    # scores = sum(mat_all_fea_01[:,(list_sample_auc .>= 0.6)],dims=2) .- sum(mat_all_fea_01[:,(list_sample_auc .<= 0.4)],dims=2)
+    # o = sortperm(vec(scores), rev = true)
+    # scores = scores[o]
+    # l_fea = (1:size(mat_all_fea_01)[1])[o]
+    # f1 = l_fea .% r
+    # f2 = (l_fea .- 1) .÷ r .+ 1
+    # f1[f1 .== 0] .= r
+    # ff = hcat(features1[f1], features2[f2])
+    # # ff_all = mapreduce(x -> hcat.(features2,x),vcat,features1)
+    # # ff_all = ff_all[o]
+    # # ff = ff_all[l_fea,:]
+    # feas = ff[.!(ff[:,1] .== ff[:,2]),:]
+    # return feas
+    # writedlm(join([fn_stem, "all_feas_all.tsv"], "_"), feas, "\t")
+    # writedlm(join([fn_stem, "marker_feas.tsv"], "_"), feas[1:n_top,:], "\t")
+
+
+    ## 测试和原本结果是否一致，使用和文章中完全一样的样本
+    # s_sample = readdlm("/public/yanj/jupyter_work/molecular_marker/idea_1_climbing_method/outcome_REO_molecular_markers/data/train_NEUB/pool_sample.txt", '\t', header = false)
+    # s_500index = readdlm("/public/yanj/jupyter_work/molecular_marker/idea_1_climbing_method/outcome_REO_molecular_markers/data/train_NEUB/500index.txt", '\t', header = false)
+    # [s_500index[(s_500index .== i[1])] .= i[2] for i in eachrow(Int64.(hcat(sort(unique(s_sample)),[1:108...])))]
+    # s_500index = vec(Int64.(s_500index))
+    # [s_sample[(s_sample .== i[1])] .= i[2] for i in eachrow(Int64.(hcat(sort(unique(s_sample)),[1:108...])))]
+    # train_test_set = [Int64.(vec(i)) for i in eachcol(s_sample)]
+    # if t_train_iter_num > (r*c - min(r,c))
+    #   @info ("The threshold of the number of iterations for each sample of the mountain climbing method is $t_train_iter_num, which is greater than the total number of features $(r*c - min(r,c)), so the number of features is taken as the upper limit.")
+    #   t_train_iter_num = (r*c - min(r,c))
+    # end
+    # @time mat_first_fea_01, mat_all_fea_01, list_sample_auc = hill_climbing_method_kernel(nmat_fea_01, r, c, l_train, l_test, train_test_set, true_ngrp, t_hill_iter_num, t_train_iter_num)
+    # writedlm(join([fn_stem, "s2000_mat_first_fea_01.tsv"], "_"), mat_first_fea_01, "\t")
+    # writedlm(join([fn_stem, "s2000_mat_all_fea_01.tsv"], "_"), mat_all_fea_01, "\t")
+    # writedlm(join([fn_stem, "s2000_list_sample_auc.tsv"], "_"), list_sample_auc, "\t")
+    # s500_list_sample_auc = list_sample_auc[s_500index]
+    # s500_mat_first_fea_01 = mat_first_fea_01[:,s_500index]
+    # s500_mat_all_fea_01 = mat_all_fea_01[:,s_500index]
+    # writedlm(join([fn_stem, "s500_mat_first_fea_01.tsv"], "_"), s500_mat_first_fea_01, "\t")
+    # writedlm(join([fn_stem, "s500_mat_all_fea_01.tsv"], "_"), s500_mat_all_fea_01, "\t")
+    # writedlm(join([fn_stem, "s500_list_sample_auc.tsv"], "_"), s500_list_sample_auc, "\t")
+    # scores = sum(s500_mat_all_fea_01[:,(s500_list_sample_auc .>= 0.6)],dims=2) .- sum(s500_mat_all_fea_01[:,(s500_list_sample_auc .<= 0.4)],dims=2)
+    # o = sortperm(vec(scores), rev = true)
+    # scores = scores[o]
+    # l_fea = (1:size(mat_all_fea_01)[1])[o]
+    # f1 = l_fea .% r
+    # f2 = l_fea .÷ r
+    # f2[(f1 .== 0) .&& (f2 .!=0 )] .-= 1
+    # f2[f2 .== 0] .= 1
+    # f1[f1 .== 0] .= c
+    # ff = hcat(features1[f1], features2[f2])
+    # return ff[.!(ff[:,1] .== ff[:,2]),:]
+
+
 end
 
     

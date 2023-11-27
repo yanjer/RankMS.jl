@@ -236,26 +236,39 @@ function REO_molecular_markers_main(fn_expr::AbstractString = "matrix.mtx",
     # @time min_score, n_top_gp = n_top_genepair(gene_pair_01, n_top)
     # return hcat.(features1[n_top_gp[:,1]], " > ", features2[n_top_gp[:,2]])
     omarker_fea, wmarker_fea = run_REO_molecular_markers(nmat, fea, ngrp, bar,fn_stem, t_hill_iter_num, n_train, n_test, t_train_iter_num, fn_feature,mode_genepair_select, mode_gene_select, fn_feature_gene_sit, fn_feature_delim)
-
-    # marker_feas = vcat(["marker_fea"], mapreduce(x -> join(x," > "),vcat,eachrow(marker_fea)))
-    marker_feas = mapreduce(x -> [x[1] x[2] ">"],vcat,eachrow(marker_fea))
+    omarker_feas = mapreduce(x -> [x[1] x[2] ">"],vcat,eachrow(omarker_fea))
     n_top <= (r*c - min(r,c)) ||  @info ("The number of features is less than $n_top for the specified output, so all features are output as a result.")
-    writedlm(join([fn_stem, "all_feas_scores.tsv"], "_"), marker_feas[1:n_top,:], "\t")
-    writedlm(join([fn_stem, "marker_feas.tsv"], "_"), marker_feas[1:n_top,:], "\t")
+    writedlm(join([fn_stem, "oall_feas_all.tsv"], "_"), omarker_feas, "\t")
+    writedlm(join([fn_stem, "omarker_feas.tsv"], "_"), omarker_feas[1:n_top,:], "\t")
+    # marker_feas = vcat(["marker_fea"], mapreduce(x -> join(x," > "),vcat,eachrow(marker_fea)))
+    wmarker_feas = mapreduce(x -> [x[1] x[2] ">"],vcat,eachrow(wmarker_fea))
+    n_top <= (r*c - min(r,c)) ||  @info ("The number of features is less than $n_top for the specified output, so all features are output as a result.")
+    writedlm(join([fn_stem, "wall_feas_all.tsv"], "_"), wmarker_feas, "\t")
+    writedlm(join([fn_stem, "wmarker_feas.tsv"], "_"), wmarker_feas[1:n_top,:], "\t")
+    # 保存组别信息
+    writedlm(join([fn_stem, "group_order.tsv"], "_"), nam, "\t")
     # # 随机森林结果
-    # (building_random_forests == "yes") ? classifier = run_REO_RandomForest(nmat, fea, DataFrame(reshape(Int.(.!ngrp),size(ngrp)[1],1) .+ 1,:auto), wmarker_fea[1:n_top,:], fn_stem) : return marker_feas
+    # (building_random_forests == "yes") ? classifier = run_REO_RandomForest(nmat, fea, DataFrame(reshape(Int.(.!ngrp),size(ngrp)[1],1) .+ 1,:auto), marker_fea[1:n_top,:], fn_stem) : return marker_feas
     # save("RandomForest_classifier.jld", "RandomForest_classifier", classifier)
     # # save(join([fn_stem, "RandomForest_classifier.jld"], "_"), "RandomForest_classifier", classifier)
     # # 随机森林模型运用到本数据集中
-    # pre_randomforest = predict_sample_classification(classifier, nmat, fea, bar, wmarker_feas[1:n_top,:],fn_stem)
+    # pre_randomforest = predict_sample_classification(classifier, nmat, fea, bar, marker_feas[1:n_top,:],fn_stem)
     # pre_randomforest_ct = ["" "True_group1" "True_group2"; "Pre_group1" length(intersect(pre_randomforest[(pre_randomforest[:,2] .== 1),1],grp[1])) length(intersect(pre_randomforest[(pre_randomforest[:,2] .== 1),1],grp[2])); "Pre_group2" length(intersect(pre_randomforest[(pre_randomforest[:,2] .== 2),1],grp[1])) length(intersect(pre_randomforest[(pre_randomforest[:,2] .== 2),1],grp[2]))]
     # @info "INFO: The prediction results of the trained random forest model in the training set are shown by 2 x 2 contingency tables: $(pre_randomforest_ct)"
     # #多数投票
-    # pre_majorityvote = predict_sample_classification(nmat, fea, bar, marker_feas[1:n_top,:],fn_stem)
+    # pre_majorityvote = predict_sample_classification(nmat, fea, bar, omarker_feas[1:n_top,:],fn_stem)
     # pre_majorityvote_ct = ["" "True_group1" "True_group2"; "Pre_group1" length(intersect(pre_majorityvote[(pre_majorityvote[:,2] .== 1),1],grp[1])) length(intersect(pre_majorityvote[(pre_majorityvote[:,2] .== 1),1],grp[2])); "Pre_group2" length(intersect(pre_majorityvote[(pre_majorityvote[:,2] .== 2),1],grp[1])) length(intersect(pre_majorityvote[(pre_majorityvote[:,2] .== 2),1],grp[2]))]
     # @info "INFO: The prediction results of the majority voting rule in the training set are shown by 2 x 2 contingency tables: $(pre_majorityvote_ct)"
     # return marker_feas[1:n_top,:], classifier
-    return marker_feas[1:n_top,:]
+    return omarker_feas[1:n_top,:], wmarker_feas[1:n_top,:]
+    
+    # marker_fea = run_REO_molecular_markers(nmat, fea, ngrp, bar,fn_stem, t_hill_iter_num, n_train, n_test, t_train_iter_num, fn_feature,mode_genepair_select, mode_gene_select, fn_feature_gene_sit, fn_feature_delim)
+    # marker_feas = mapreduce(x -> [x[1] x[2] ">"],vcat,eachrow(marker_fea))
+    # n_top <= (r*c - min(r,c)) ||  @info ("The number of features is less than $n_top for the specified output, so all features are output as a result.")
+    # writedlm(join([fn_stem, "all_feas_all.tsv"], "_"), marker_feas, "\t")
+    # writedlm(join([fn_stem, "marker_feas.tsv"], "_"), marker_feas[1:n_top,:], "\t")
+    # # marker_feas = vcat(["marker_fea"], mapreduce(x -> join(x," > "),vcat,eachrow(marker_fea)))
+    # return marker_feas[1:n_top,:]
 end
 
 end

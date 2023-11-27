@@ -212,7 +212,7 @@ function sampling(poolFirsts::AbstractMatrix,
 
 	scores, fea = score_features(ss, feats, pos, neg)
 
-	return scores, fea
+	return scores, fea, ss
 end
 
 # 	scores[1:15]

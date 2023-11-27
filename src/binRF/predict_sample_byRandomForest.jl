@@ -4,8 +4,8 @@ using DelimitedFiles, SparseArrays
 
 using JLD, HDF5
 
-include("read_file.jl")
-include("compare_genepair.jl")
+include("../code/read_file.jl")
+include("../code/compare_genepair.jl")
 include("../code/sample_intersection.jl")
 
 """
