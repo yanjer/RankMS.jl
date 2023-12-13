@@ -143,19 +143,15 @@ function run_REO_molecular_markers(nmat::AbstractMatrix, # Expression profiles m
     scores, l_fea, ss = sampling(mat_first_fea_01, list_sample_auc, mat_all_fea_01; sp_choice = 0)
     writedlm(join([fn_stem, "osample_local.tsv"], "_"), ss, "\t")
     f1 = l_fea .% r
-    f2 = l_fea .÷ r
-    f2[(f1 .== 0) .&& (f2 .!=0 )] .-= 1
-    f2[f2 .== 0] .= 1
-    f1[f1 .== 0] .= c
+    f2 = (l_fea .- 1) .÷ r .+ 1
+    f1[f1 .== 0] .= r
     ffo = hcat(features1[f1], features2[f2])
     # weight
     scores, l_fea, ss = sampling(mat_first_fea_01, list_sample_auc, mat_all_fea_01; sp_choice = 1)
     writedlm(join([fn_stem, "wsample_local.tsv"], "_"), ss, "\t")
     f1 = l_fea .% r
-    f2 = l_fea .÷ r
-    f2[(f1 .== 0) .&& (f2 .!=0 )] .-= 1
-    f2[f2 .== 0] .= 1
-    f1[f1 .== 0] .= c
+    f2 = (l_fea .- 1) .÷ r .+ 1
+    f1[f1 .== 0] .= r
     ffw = hcat(features1[f1], features2[f2])
     # 保存文件
     mat_first_fea_01 = mat_first_fea_01[setdiff(1:end, [1:r...].^2),:]
@@ -231,7 +227,7 @@ function run_REO_molecular_markers(nmat::AbstractMatrix, # Expression profiles m
     # f2 = l_fea .÷ r
     # f2[(f1 .== 0) .&& (f2 .!=0 )] .-= 1
     # f2[f2 .== 0] .= 1
-    # f1[f1 .== 0] .= c
+    # f1[f1 .== 0] .= r
     # ff = hcat(features1[f1], features2[f2])
     # return ff[.!(ff[:,1] .== ff[:,2]),:]
 

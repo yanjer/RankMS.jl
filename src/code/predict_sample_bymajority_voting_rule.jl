@@ -129,8 +129,8 @@ function predict_sample_classification(fn_expr::AbstractString = "matrix.mtx",
     @info "INFO: The size of expression profile was $(size(mat))."
     @time marker_fea = read_marker_fea(fn_marker_fea; delim = fn_marker_fea_delim)  
     group_order = read_group_order(fn_group_order)
-    group_order[group_order .== "regression"] .= "response"
-    group_order[group_order .== "unregression"] .= "nonresponse"
+    # group_order[group_order .== "regression"] .= "response"
+    # group_order[group_order .== "unregression"] .= "nonresponse"
     # # # 过滤表达谱
     # # @time mat, kf, kb = filter_expr_matrix(mat, feature_threshold, cell_threshold)
     # # @info "INFO: The filtered of expression profile size was $(size(mat))."
