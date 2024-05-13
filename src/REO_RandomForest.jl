@@ -148,13 +148,13 @@ end
 #  "group2" 
 
 # julia> fn_expr = joinpath(@__DIR__, "..", "test", "matrix.mtx")
-# "/REO_molecular_markers.jl/src/../test/matrix.mtx"
+# "/REO_molecular_signatures.jl/src/../test/matrix.mtx"
 
 # julia> rn_expr = joinpath(@__DIR__, "..", "test", "features.tsv")
-# "/REO_molecular_markers.jl/src/../test/features.tsv"
+# "/REO_molecular_signatures.jl/src/../test/features.tsv"
 
 # julia> cn_expr = joinpath(@__DIR__, "..", "test", "barcodes.tsv")
-# "/REO_molecular_markers.jl/src/../test/barcodes.tsv"
+# "/REO_molecular_signatures.jl/src/../test/barcodes.tsv"
 
 # julia> predict_sample_classification("RandomForest_classifier.jld", "matrix.mtx", "features.tsv", "barcodes.tsv", "marker_genepairs.tsv")
 #   0.065766 seconds (1.08 M allocations: 34.743 MiB)

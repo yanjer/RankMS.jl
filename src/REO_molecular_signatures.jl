@@ -1,10 +1,10 @@
-module REO_molecular_markers
+module REO_molecular_signatures
 
 using JLD
 using HDF5
 using DataFrames
 
-export REO_molecular_markers_main, 
+export REO_molecular_signatures_main, 
        hill_climbing_method_kernel,
        fgene_to_genepair_kernel,
        generate_pseudobulk_kernel,
@@ -24,7 +24,7 @@ include("code/train_and_test_sample.jl")
 
 include("code/hill_climbing_method.jl")
 
-include("run_REO_molecular_markers.jl")
+include("run_REO_molecular_signatures.jl")
 
 include("code/roc.jl")
 
@@ -38,12 +38,12 @@ include("code/sample.jl")
 
 
 """
-  Identification of molecular markers based on REO.
-  REO_molecular_markers_main(fn_expr, rn_expr, cn_expr, fn_meta)
+  Identification of molecular signatures based on REO.
+  REO_molecular_signatures_main(fn_expr, rn_expr, cn_expr, fn_meta)
 
 Test with testdata.
 ```jldoctest
-julia> @time REO_molecular_markers_main(use_testdata = "yes")
+julia> @time REO_molecular_signatures_main(use_testdata = "yes")
   0.968692 seconds (3.16 M allocations: 144.953 MiB, 4.02% gc time, 92.61% compilation time)
 [ Info: INFO: The size of expression profile was (36602, 8).
   1.233192 seconds (4.89 M allocations: 249.153 MiB, 3.64% gc time, 96.91% compilation time)
@@ -72,12 +72,12 @@ julia> @time REO_molecular_markers_main(use_testdata = "yes")
 ```
 Psudo-bulk mode
 ```jldoctest
-julia> REO_molecular_markers_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt", ncell_pseudo = 50)
+julia> REO_molecular_signatures_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt", ncell_pseudo = 50)
 ```
 
 Example
 ```jldoctest
-julia> REO_molecular_markers_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt")
+julia> REO_molecular_signatures_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt")
   0.056830 seconds (452.95 k allocations: 27.934 MiB, 28.07% gc time)
   1.357235 seconds (2.88 M allocations: 151.763 MiB, 2.36% gc time, 95.23% compilation time)
   0.229058 seconds (174.22 k allocations: 9.222 MiB, 99.67% compilation time)
@@ -100,7 +100,7 @@ julia> REO_molecular_markers_main("matrix.mtx", "features.tsv", "barcodes.tsv", 
 ```
 All parameters.
 ```jldoctest
-REO_molecular_markers_main(fn_expr::AbstractString = "matrix.mtx",
+REO_molecular_signatures_main(fn_expr::AbstractString = "matrix.mtx",
                           rn_expr::AbstractString = "features.tsv",
                           cn_expr::AbstractString = "barcodes.tsv",
                           fn_meta::AbstractString = "fn_meta.txt",
@@ -158,7 +158,7 @@ The parameters are:
 - `use_testdata::AbstractString`: Whether to use test data. "yes "or "no". Default: "no".
 - `work_dir::AbstractString`: Working directory. Default: "./".
 """
-function REO_molecular_markers_main(fn_expr::AbstractString = "matrix.mtx",
+function REO_molecular_signatures_main(fn_expr::AbstractString = "matrix.mtx",
                           rn_expr::AbstractString = "features.tsv",
                           cn_expr::AbstractString = "barcodes.tsv",
                           fn_meta::AbstractString = "fn_meta.txt",
@@ -235,7 +235,7 @@ function REO_molecular_markers_main(fn_expr::AbstractString = "matrix.mtx",
     # # 取出得分最高的前n_top个基因对各划分正确的样本数和各基因所在的行索引
     # @time min_score, n_top_gp = n_top_genepair(gene_pair_01, n_top)
     # return hcat.(features1[n_top_gp[:,1]], " > ", features2[n_top_gp[:,2]])
-    omarker_fea, wmarker_fea = run_REO_molecular_markers(nmat, fea, ngrp, bar,fn_stem, t_hill_iter_num, n_train, n_test, t_train_iter_num, fn_feature,mode_genepair_select, mode_gene_select, fn_feature_gene_sit, fn_feature_delim)
+    omarker_fea, wmarker_fea = run_REO_molecular_signatures(nmat, fea, ngrp, bar,fn_stem, t_hill_iter_num, n_train, n_test, t_train_iter_num, fn_feature,mode_genepair_select, mode_gene_select, fn_feature_gene_sit, fn_feature_delim)
     omarker_feas = mapreduce(x -> [x[1] x[2] ">"],vcat,eachrow(omarker_fea))
     n_top <= (r*c - min(r,c)) ||  @info ("The number of features is less than $n_top for the specified output, so all features are output as a result.")
     writedlm(join([fn_stem, "oall_feas_all.tsv"], "_"), omarker_feas, "\t")
@@ -262,7 +262,7 @@ function REO_molecular_markers_main(fn_expr::AbstractString = "matrix.mtx",
     # return marker_feas[1:n_top,:], classifier
     return omarker_feas[1:n_top,:], wmarker_feas[1:n_top,:]
     
-    # marker_fea = run_REO_molecular_markers(nmat, fea, ngrp, bar,fn_stem, t_hill_iter_num, n_train, n_test, t_train_iter_num, fn_feature,mode_genepair_select, mode_gene_select, fn_feature_gene_sit, fn_feature_delim)
+    # marker_fea = run_REO_molecular_signatures(nmat, fea, ngrp, bar,fn_stem, t_hill_iter_num, n_train, n_test, t_train_iter_num, fn_feature,mode_genepair_select, mode_gene_select, fn_feature_gene_sit, fn_feature_delim)
     # marker_feas = mapreduce(x -> [x[1] x[2] ">"],vcat,eachrow(marker_fea))
     # n_top <= (r*c - min(r,c)) ||  @info ("The number of features is less than $n_top for the specified output, so all features are output as a result.")
     # writedlm(join([fn_stem, "all_feas_all.tsv"], "_"), marker_feas, "\t")

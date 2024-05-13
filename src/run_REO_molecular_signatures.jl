@@ -1,6 +1,6 @@
-# module REO_molecular_markers
+# module REO_molecular_signatures
 
-export run_REO_molecular_markers, 
+export run_REO_molecular_signatures, 
        hill_climbing_method_kernel,
        fgene_to_genepair_kernel
 
@@ -14,12 +14,12 @@ include("code/roc.jl")
 
 
 """
-  Identification of molecular markers based on REO.
-  run_REO_molecular_markers(fn_expr, rn_expr, cn_expr, fn_meta)
+  Identification of molecular signatures based on REO.
+  run_REO_molecular_signatures(fn_expr, rn_expr, cn_expr, fn_meta)
 
 Test with testdata.
 ```jldoctest
-julia> @time run_REO_molecular_markers(use_testdata = "yes")
+julia> @time run_REO_molecular_signatures(use_testdata = "yes")
   0.968692 seconds (3.16 M allocations: 144.953 MiB, 4.02% gc time, 92.61% compilation time)
 [ Info: INFO: The size of expression profile was (36602, 8).
   1.233192 seconds (4.89 M allocations: 249.153 MiB, 3.64% gc time, 96.91% compilation time)
@@ -48,12 +48,12 @@ julia> @time run_REO_molecular_markers(use_testdata = "yes")
 ```
 Psudo-bulk mode
 ```jldoctest
-julia> run_REO_molecular_markers("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt", ncell_pseudo = 50)
+julia> run_REO_molecular_signatures("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt", ncell_pseudo = 50)
 ```
 
 Example
 ```jldoctest
-julia> run_REO_molecular_markers(nmat, fea, ngrp, t_hill_iter_num, n_train, n_test, t_train_iter_num, n_top, fn_feature)
+julia> run_REO_molecular_signatures(nmat, fea, ngrp, t_hill_iter_num, n_train, n_test, t_train_iter_num, n_top, fn_feature)
   0.056830 seconds (452.95 k allocations: 27.934 MiB, 28.07% gc time)
   1.357235 seconds (2.88 M allocations: 151.763 MiB, 2.36% gc time, 95.23% compilation time)
   0.229058 seconds (174.22 k allocations: 9.222 MiB, 99.67% compilation time)
@@ -76,7 +76,7 @@ julia> run_REO_molecular_markers(nmat, fea, ngrp, t_hill_iter_num, n_train, n_te
 ```
 All parameters.
 ```jldoctest
-run_REO_molecular_markers(nmat::AbstractMatrix, # Expression profiles matrix 
+run_REO_molecular_signatures(nmat::AbstractMatrix, # Expression profiles matrix 
                                    fea::Vector,
                                   ngrp::BitVector,
                        t_hill_iter_num::Int = 500,  # Hill climbing number of iterations.
@@ -110,7 +110,7 @@ The parameters are:
 - `fn_feature_delim::AbstractChar`: The separator of the characteristic gene file. Default: '\t'.
 """
 
-function run_REO_molecular_markers(nmat::AbstractMatrix, # Expression profiles matrix 
+function run_REO_molecular_signatures(nmat::AbstractMatrix, # Expression profiles matrix 
                                    fea::Vector,
                                   ngrp::BitVector,
                                   bar::Vector,
@@ -199,8 +199,8 @@ function run_REO_molecular_markers(nmat::AbstractMatrix, # Expression profiles m
 
 
     ## 测试和原本结果是否一致，使用和文章中完全一样的样本
-    # s_sample = readdlm("/public/yanj/jupyter_work/molecular_marker/idea_1_climbing_method/outcome_REO_molecular_markers/data/train_NEUB/pool_sample.txt", '\t', header = false)
-    # s_500index = readdlm("/public/yanj/jupyter_work/molecular_marker/idea_1_climbing_method/outcome_REO_molecular_markers/data/train_NEUB/500index.txt", '\t', header = false)
+    # s_sample = readdlm("/public/yanj/jupyter_work/molecular_marker/idea_1_climbing_method/outcome_REO_molecular_signatures/data/train_NEUB/pool_sample.txt", '\t', header = false)
+    # s_500index = readdlm("/public/yanj/jupyter_work/molecular_marker/idea_1_climbing_method/outcome_REO_molecular_signatures/data/train_NEUB/500index.txt", '\t', header = false)
     # [s_500index[(s_500index .== i[1])] .= i[2] for i in eachrow(Int64.(hcat(sort(unique(s_sample)),[1:108...])))]
     # s_500index = vec(Int64.(s_500index))
     # [s_sample[(s_sample .== i[1])] .= i[2] for i in eachrow(Int64.(hcat(sort(unique(s_sample)),[1:108...])))]

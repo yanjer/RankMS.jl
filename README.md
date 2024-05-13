@@ -1,4 +1,4 @@
-## REO_molecular_markers.jl
+## REO_molecular_signatures.jl
 
 Molecular marker identification and model construction based on gene pair relative Expression order (REOs).
 
@@ -10,7 +10,7 @@ It is based on julia language development, including molecular marker identifica
 
 Molecular marker gene pairs  and model construction are obtained by this function: 
 
-`REO_molecular_markers_main(fn_expr::AbstractString = "matrix.mtx", rn_expr::AbstractString = "features.tsv", cn_expr::AbstractString = "barcodes.tsv", fn_meta::AbstractString = "fn_meta.txt", fn_feature::AbstractString = "fn_feature.txt"; building_random_forests::AbstractString = "yes", n_top::Int = 10,  n_train::Int = 13, n_test::Int = 3, t_hill_iter_num::Int = 500,  t_train_iter_num::Int = 15,  ncell_pseudo::Int = 0, fn_meta_delim::AbstractChar = '\t', fn_meta_group::AbstractString = "group", file_format_expr::AbstractString = "read_mtx",  T::Type = Int32, feature_col::Int = 2, barcode_col::Int = 1, feature_threshold::Int = 30, cell_threshold::Int = 200, fn_feature_gene_sit::Int = 1, fn_feature_delim::AbstractChar = '\t', mode_combine_genepair::AbstractString = "all_gene_combine_pair", mode_use_feature::AbstractString = "custom", remove_zeros::Bool = true, use_testdata::AbstractString = "no", work_dir::AbstractString = "./")`
+`REO_molecular_signatures_main(fn_expr::AbstractString = "matrix.mtx", rn_expr::AbstractString = "features.tsv", cn_expr::AbstractString = "barcodes.tsv", fn_meta::AbstractString = "fn_meta.txt", fn_feature::AbstractString = "fn_feature.txt"; building_random_forests::AbstractString = "yes", n_top::Int = 10,  n_train::Int = 13, n_test::Int = 3, t_hill_iter_num::Int = 500,  t_train_iter_num::Int = 15,  ncell_pseudo::Int = 0, fn_meta_delim::AbstractChar = '\t', fn_meta_group::AbstractString = "group", file_format_expr::AbstractString = "read_mtx",  T::Type = Int32, feature_col::Int = 2, barcode_col::Int = 1, feature_threshold::Int = 30, cell_threshold::Int = 200, fn_feature_gene_sit::Int = 1, fn_feature_delim::AbstractChar = '\t', mode_combine_genepair::AbstractString = "all_gene_combine_pair", mode_use_feature::AbstractString = "custom", remove_zeros::Bool = true, use_testdata::AbstractString = "no", work_dir::AbstractString = "./")`
 
 The parameters are:
 
@@ -112,13 +112,13 @@ The parameters are:
 - `mat::AbstractMatrix`: Each column is a profile.
 - `np::Int`: Number of profiles in each pseudobulk profile. Default: 10.
 
-### run_REO_molecular_markers
+### run_REO_molecular_signatures
 
 #### 
 
 Molecular marker gene pairs are obtained by this function: 
 
-`run_REO_molecular_markers(nmat::AbstractMatrix, fea::Vector, ngrp::BitVector, bar::Vector; fn_stem::AbstractString, t_hill_iter_num::Int = 500, n_train::Int = 13,  n_test::Int = 3, t_train_iter_num::Int = 15, n_top::Int = 10, fn_feature::AbstractString = "fn_feature.txt", mode_combine_genepair::AbstractString = "all_gene_combine_pair", mode_use_feature::AbstractString = "custom", fn_feature_gene_sit::Int = 1, fn_feature_delim::AbstractChar = '\t')`
+`run_REO_molecular_signatures(nmat::AbstractMatrix, fea::Vector, ngrp::BitVector, bar::Vector; fn_stem::AbstractString, t_hill_iter_num::Int = 500, n_train::Int = 13,  n_test::Int = 3, t_train_iter_num::Int = 15, n_top::Int = 10, fn_feature::AbstractString = "fn_feature.txt", mode_combine_genepair::AbstractString = "all_gene_combine_pair", mode_use_feature::AbstractString = "custom", fn_feature_gene_sit::Int = 1, fn_feature_delim::AbstractChar = '\t')`
 
 The parameters are:
 

@@ -1,4 +1,4 @@
-# run_REO_molecular_markers.jl
+# run_REO_molecular_signatures.jl
 
 ### Molecular marker recognition based on relative expression order of gene pairs (REOs).
 
@@ -10,7 +10,7 @@ It is based on julia language development, including feature selection, feature 
 
 Molecular marker gene pairs are obtained by this function: 
 
-`run_REO_molecular_markers(nmat::AbstractMatrix, fea::Vector, ngrp::BitVector, bar::Vector; fn_stem::AbstractString, t_hill_iter_num::Int = 500, n_train::Int = 13,  n_test::Int = 3, t_train_iter_num::Int = 15, n_top::Int = 10, fn_feature::AbstractString = "fn_feature.txt", mode_combine_genepair::AbstractString = "all_gene_combine_pair", mode_use_feature::AbstractString = "custom", fn_feature_gene_sit::Int = 1, fn_feature_delim::AbstractChar = '\t')`
+`run_REO_molecular_signatures(nmat::AbstractMatrix, fea::Vector, ngrp::BitVector, bar::Vector; fn_stem::AbstractString, t_hill_iter_num::Int = 500, n_train::Int = 13,  n_test::Int = 3, t_train_iter_num::Int = 15, n_top::Int = 10, fn_feature::AbstractString = "fn_feature.txt", mode_combine_genepair::AbstractString = "all_gene_combine_pair", mode_use_feature::AbstractString = "custom", fn_feature_gene_sit::Int = 1, fn_feature_delim::AbstractChar = '\t')`
 
 The parameters are:
 
@@ -93,7 +93,7 @@ The parameters are:
 
 ## Test data sets
 
-`REO_molecular_markers_main(use_testdata = "yes")`
+`REO_molecular_signatures_main(use_testdata = "yes")`
 
 ## Dependencies
 
