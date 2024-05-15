@@ -1,7 +1,7 @@
-name = "REO_molecular_markers"
+name = "reoMS"
 uuid = "8f17fb8d-1e49-4323-bc6d-d679a20c8a2d"
 authors = ["YanJing <yanjer123@qq.com>"]
-version = "0.1.0"
+version = "0.0.0"
 
 [deps]
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
