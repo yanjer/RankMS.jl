@@ -1,6 +1,6 @@
 using DelimitedFiles, SparseArrays
 
-using JLD, HDF5
+# using JLD, HDF5
 
 export read_mtx, read_gmt, read_meta, read_feature_genes
 
@@ -166,8 +166,8 @@ function read_marker_fea(fn::AbstractString = "marker_feas.tsv"; delim::Abstract
 	return marker_fea[:,1:2]
 end
 
-function load_RandomForest_classifier(fn::AbstractString = "RandomForest_classifier.jld")
-	isfile(fn) || throw("File $fn does not exist.")
-	classifier = collect(values(load(fn)))[1]
-    return classifier
-end
+# function load_RandomForest_classifier(fn::AbstractString = "RandomForest_classifier.jld")
+# 	isfile(fn) || throw("File $fn does not exist.")
+# 	classifier = collect(values(load(fn)))[1]
+#     return classifier
+# end

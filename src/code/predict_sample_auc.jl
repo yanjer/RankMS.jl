@@ -2,7 +2,7 @@ export predict_sample_classification, intersect_groudtruth
 
 using DelimitedFiles, SparseArrays
 
-using JLD, HDF5
+# using JLD, HDF5
 
 include("read_file.jl")
 include("compare_genepair.jl")
