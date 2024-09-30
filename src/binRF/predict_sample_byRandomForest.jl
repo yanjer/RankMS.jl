@@ -2,7 +2,7 @@ export predict_sample_classification, intersect_groudtruth
 
 using DelimitedFiles, SparseArrays
 
-using JLD, HDF5
+# using JLD, HDF5
 
 include("../code/read_file.jl")
 include("../code/compare_genepair.jl")
@@ -59,51 +59,51 @@ julia> predict_sample_classification("RandomForest_classifier.jld", "matrix.mtx"
 ```
 """
 
-# 随机森林
-function predict_sample_classification(fn_classifier::AbstractString = "RandomForest_classifier.jld", # 随机森林结果
-                                                fn_expr::AbstractString = "matrix.mtx",
-                                                rn_expr::AbstractString = "features.tsv",
-                                                cn_expr::AbstractString = "barcodes.tsv",
-                                 fn_marker_fea::AbstractString = "marker_feas.tsv";
-                                 fn_meta::AbstractString = "fn_meta.tsv",
-                                 fn_meta_delim::AbstractChar = '\t',
-                               fn_meta_group::AbstractString = "group",
-                                       file_format_expr::AbstractString = "read_mtx", # There are two input modes "read_mtx" and "read_expr_matrix" for the expression profile file format.
-                                                      T::Type = Int32,
-                                            feature_col::Int = 2,
-                                            barcode_col::Int = 1,
-                                            fn_marker_fea_delim::AbstractChar = '\t',
-                                      feature_threshold::Int = 30, # Include features (genes) detected in at least this many cells
-                                         cell_threshold::Int = 200) # Include profiles (cells) where at least this many features are detected
-    fn_stem, = splitext(basename(fn_expr))   #filename stem
-    @time classifier = load_RandomForest_classifier(fn_classifier)
-    @time mat, fea, bar = (file_format_expr == "read_mtx") ? read_mtx(fn_expr, rn_expr, cn_expr; T, feature_col, barcode_col) : read_expr_matrix(fn_expr, rn_expr, cn_expr)
-    @info "INFO: The size of expression profile was $(size(mat))."
-    @time marker_fea = read_marker_fea(fn_marker_fea; delim = fn_marker_fea_delim)
-    # # 过滤表达谱
-    # @time mat, kf, kb = filter_expr_matrix(mat, feature_threshold, cell_threshold)
-    # @info "INFO: The filtered of expression profile size was $(size(mat))."
-    # fea = fea[kf]
-    # bar = bar[kb]
-    Xnorm = Flux.normalise(Matrix(mat'), dims = 1)
-    r, c = size(Xnorm)
-    X_reo = mapreduce(x->(Xnorm[:,(fea .== x[1])] .> Xnorm[:,(fea .== x[2])]),hcat,eachrow(marker_fea))
-    X = DataFrame(X_reo, :auto)
-    y_pred = predict(classifier, X)
-    # classifier.t_classes
-    # y_pred
-    # 分类结果，第一列为样本名，第二列为分类类别
-    pre_sample_classification = hcat(bar,y_pred)
-    writedlm(join([fn_stem, "RandomForest_pre.tsv"], "_"), pre_sample_classification, "\t")
-    if isfile(fn_meta)
-        grp, nam, meta_bar = read_meta(fn_meta, fn_meta_group; delim = fn_meta_delim)
-        r == length(meta_bar) ||  throw(DimensionMismatch("The number of samples for metadata is not equal to the number of samples for the expression profile."))
-        pre_sample_classification_ct = ["" "True_group1" "True_group2"; "Pre_group1" length(intersect_groudtruth(pre_sample_classification,grp,1,1)) length(intersect_groudtruth(pre_sample_classification,grp,1,2)); "Pre_group2" length(intersect_groudtruth(pre_sample_classification,grp,2,1)) length(intersect_groudtruth(pre_sample_classification,grp,2,2))]
-        return pre_sample_classification, pre_sample_classification_ct
-    end
-    return pre_sample_classification
-    # return hcat(nam[y_pred],nam[y_pred])
-end
+# # 随机森林
+# function predict_sample_classification(fn_classifier::AbstractString = "RandomForest_classifier.jld", # 随机森林结果
+#                                                 fn_expr::AbstractString = "matrix.mtx",
+#                                                 rn_expr::AbstractString = "features.tsv",
+#                                                 cn_expr::AbstractString = "barcodes.tsv",
+#                                  fn_marker_fea::AbstractString = "marker_feas.tsv";
+#                                  fn_meta::AbstractString = "fn_meta.tsv",
+#                                  fn_meta_delim::AbstractChar = '\t',
+#                                fn_meta_group::AbstractString = "group",
+#                                        file_format_expr::AbstractString = "read_mtx", # There are two input modes "read_mtx" and "read_expr_matrix" for the expression profile file format.
+#                                                       T::Type = Int32,
+#                                             feature_col::Int = 2,
+#                                             barcode_col::Int = 1,
+#                                             fn_marker_fea_delim::AbstractChar = '\t',
+#                                       feature_threshold::Int = 30, # Include features (genes) detected in at least this many cells
+#                                          cell_threshold::Int = 200) # Include profiles (cells) where at least this many features are detected
+#     fn_stem, = splitext(basename(fn_expr))   #filename stem
+#     @time classifier = load_RandomForest_classifier(fn_classifier)
+#     @time mat, fea, bar = (file_format_expr == "read_mtx") ? read_mtx(fn_expr, rn_expr, cn_expr; T, feature_col, barcode_col) : read_expr_matrix(fn_expr, rn_expr, cn_expr)
+#     @info "INFO: The size of expression profile was $(size(mat))."
+#     @time marker_fea = read_marker_fea(fn_marker_fea; delim = fn_marker_fea_delim)
+#     # # 过滤表达谱
+#     # @time mat, kf, kb = filter_expr_matrix(mat, feature_threshold, cell_threshold)
+#     # @info "INFO: The filtered of expression profile size was $(size(mat))."
+#     # fea = fea[kf]
+#     # bar = bar[kb]
+#     Xnorm = Flux.normalise(Matrix(mat'), dims = 1)
+#     r, c = size(Xnorm)
+#     X_reo = mapreduce(x->(Xnorm[:,(fea .== x[1])] .> Xnorm[:,(fea .== x[2])]),hcat,eachrow(marker_fea))
+#     X = DataFrame(X_reo, :auto)
+#     y_pred = predict(classifier, X)
+#     # classifier.t_classes
+#     # y_pred
+#     # 分类结果，第一列为样本名，第二列为分类类别
+#     pre_sample_classification = hcat(bar,y_pred)
+#     writedlm(join([fn_stem, "RandomForest_pre.tsv"], "_"), pre_sample_classification, "\t")
+#     if isfile(fn_meta)
+#         grp, nam, meta_bar = read_meta(fn_meta, fn_meta_group; delim = fn_meta_delim)
+#         r == length(meta_bar) ||  throw(DimensionMismatch("The number of samples for metadata is not equal to the number of samples for the expression profile."))
+#         pre_sample_classification_ct = ["" "True_group1" "True_group2"; "Pre_group1" length(intersect_groudtruth(pre_sample_classification,grp,1,1)) length(intersect_groudtruth(pre_sample_classification,grp,1,2)); "Pre_group2" length(intersect_groudtruth(pre_sample_classification,grp,2,1)) length(intersect_groudtruth(pre_sample_classification,grp,2,2))]
+#         return pre_sample_classification, pre_sample_classification_ct
+#     end
+#     return pre_sample_classification
+#     # return hcat(nam[y_pred],nam[y_pred])
+# end
 
 """
 
