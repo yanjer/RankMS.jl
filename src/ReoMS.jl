@@ -1,10 +1,10 @@
-module ReoMS
+module REOMS
 
 # using JLD
 # using HDF5
 using DataFrames
 
-export ReoMS_main, 
+export REOMS_main, 
        hill_climbing_method_kernel,
        fgene_to_genepair_kernel,
        generate_pseudobulk_kernel,
@@ -39,11 +39,11 @@ include("code/sample.jl")
 
 """
   Identification of molecular signatures based on REO.
-  ReoMS_main(fn_expr, rn_expr, cn_expr, fn_meta)
+  REOMS_main(fn_expr, rn_expr, cn_expr, fn_meta)
 
 Test with testdata.
 ```jldoctest
-julia> @time ReoMS_main(use_testdata = "yes")
+julia> @time REOMS_main(use_testdata = "yes")
   0.968692 seconds (3.16 M allocations: 144.953 MiB, 4.02% gc time, 92.61% compilation time)
 [ Info: INFO: The size of expression profile was (36602, 8).
   1.233192 seconds (4.89 M allocations: 249.153 MiB, 3.64% gc time, 96.91% compilation time)
@@ -72,12 +72,12 @@ julia> @time ReoMS_main(use_testdata = "yes")
 ```
 Psudo-bulk mode
 ```jldoctest
-julia> ReoMS_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt", ncell_pseudo = 50)
+julia> REOMS_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt", ncell_pseudo = 50)
 ```
 
 Example
 ```jldoctest
-julia> ReoMS_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt")
+julia> REOMS_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt")
   0.056830 seconds (452.95 k allocations: 27.934 MiB, 28.07% gc time)
   1.357235 seconds (2.88 M allocations: 151.763 MiB, 2.36% gc time, 95.23% compilation time)
   0.229058 seconds (174.22 k allocations: 9.222 MiB, 99.67% compilation time)
@@ -100,7 +100,7 @@ julia> ReoMS_main("matrix.mtx", "features.tsv", "barcodes.tsv", "fn_meta.txt")
 ```
 All parameters.
 ```jldoctest
-ReoMS_main(fn_expr::AbstractString = "matrix.mtx",
+REOMS_main(fn_expr::AbstractString = "matrix.mtx",
                           rn_expr::AbstractString = "features.tsv",
                           cn_expr::AbstractString = "barcodes.tsv",
                           fn_meta::AbstractString = "fn_meta.txt",
@@ -158,7 +158,7 @@ The parameters are:
 - `use_testdata::AbstractString`: Whether to use test data. "yes "or "no". Default: "no".
 - `work_dir::AbstractString`: Working directory. Default: "./".
 """
-function ReoMS_main(fn_expr::AbstractString = "matrix.mtx",
+function REOMS_main(fn_expr::AbstractString = "matrix.mtx",
                           rn_expr::AbstractString = "features.tsv",
                           cn_expr::AbstractString = "barcodes.tsv",
                           fn_meta::AbstractString = "fn_meta.txt",
