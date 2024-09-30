@@ -1,9 +1,13 @@
 name = "reoMS"
 uuid = "8f17fb8d-1e49-4323-bc6d-d679a20c8a2d"
-authors = ["YanJing <yanjer123@qq.com>"]
+authors = ["YanJing <yanjer888@gmail.com>"]
 version = "0.0.1"
 
 [deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+
+[compat]
+CSV = "0.10.9"
